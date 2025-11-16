@@ -192,7 +192,7 @@ def _sanitize_filename(name: str) -> str:
     return re.sub(r'[<>:"/\\|?*]', "_", name)
 
 
-def convert_ssc_contents(ssc_contents: str) -> Dict[str, str]:
+def convert_ssc_contents(ssc_contents: str, output_base_name: Optional[str] = None) -> Dict[str, str]:
     model = parse_ssc_model(ssc_contents)
     base_title = model.header.title or "Untitled"
 
@@ -231,7 +231,8 @@ def convert_ssc_contents(ssc_contents: str) -> Dict[str, str]:
     ]
 
     sm_model = SmModel(header=header, note_data=sm_notes)
-    name = f"{sm_model.header.title}.sm"
+    base_name = output_base_name or sm_model.header.title
+    name = f"{base_name}.sm"
     safe_name = _sanitize_filename(name)
     LOGGER.debug("Prepared SM file %s", safe_name)
     return {safe_name: sm_model.to_file_contents()}
@@ -251,7 +252,7 @@ def convert_directory(root: Path, log_file: Path) -> None:
         LOGGER.info("Processing %s", ssc_path)
         try:
             contents = ssc_path.read_text(encoding="utf-8", errors="replace")
-            results = convert_ssc_contents(contents)
+            results = convert_ssc_contents(contents, output_base_name=ssc_path.stem)
             for sm_name, sm_contents in results.items():
                 destination = ssc_path.with_name(sm_name)
                 destination.write_text(sm_contents, encoding="utf-8")

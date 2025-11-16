@@ -4,7 +4,7 @@ Does not handle any gimmicks like "Lifts", "Fake Arrows", etc.
 
 Chart-specific BPM changes and stops are preserved inside a single consolidated SM that contains every chart.
 
-For example, given `Aces for Aces.ssc`, the converter will generate one `Aces for Aces.sm` file with all difficulties inside.
+For example, given `Aces for Aces.ssc`, the converter will generate one `Aces for Aces.sm` file with all difficulties inside. The SM filename always mirrors the SSC filename so your chart folders stay tidy.
 
 # Usage Instruction
 
