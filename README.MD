@@ -24,7 +24,10 @@ python ssc_to_sm.py "C:\\Users\\Malloy\\Downloads\\Tech-Bit Adventures"
 The script scans the given folder and all subfolders for `.ssc` files, writing
 the converted `.sm` files alongside the originals. Detailed progress messages
 are printed to the console and saved to timestamped files inside a `logs`
-directory next to the script.
+directory next to the script. If you launch `ssc_to_sm.py` without a command-
+line path, it opens a console prompt where you can paste the folder location.
+Every difficulty and step style block is exported to its own `.sm` file so that
+all charts are preserved.
 
 When you go to that page, there'll be a blank textbox. Paste the contents of the SSC file there. For example, try pasting the following text into that textbox:
 
