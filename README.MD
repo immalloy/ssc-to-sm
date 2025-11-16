@@ -2,10 +2,9 @@ Webapp that converts StepMania files in the SSC format to the SM format.
 
 Does not handle any gimmicks like "Lifts", "Fake Arrows", etc.
 
-But if there are chart-specific BPM changes and stops, this script is smart enough to split it into multiple SM files.
+Chart-specific BPM changes and stops are preserved inside a single consolidated SM that contains every chart, and metadata like subtitles, translits, and radar values is kept so the SM matches the SSC details.
 
-For example, given `Aces for Aces.ssc`, will generate `Aces for Aces [Easy].sm`, `Aces for Aces [Medium].sm`,
-`Aces for Aces [Hard].sm` and `Aces for Aces [Challenge].sm`
+For example, given `Aces for Aces.ssc`, the converter will generate one `Aces for Aces.sm` file with all difficulties inside. The SM filename always mirrors the SSC filename so your chart folders stay tidy.
 
 # Usage Instruction
 
@@ -24,7 +23,10 @@ python ssc_to_sm.py "C:\\Users\\Malloy\\Downloads\\Tech-Bit Adventures"
 The script scans the given folder and all subfolders for `.ssc` files, writing
 the converted `.sm` files alongside the originals. Detailed progress messages
 are printed to the console and saved to timestamped files inside a `logs`
-directory next to the script.
+directory next to the script. If you launch `ssc_to_sm.py` without a command-
+line path, it opens a console prompt where you can paste the folder location.
+Every difficulty and step style block is exported into one `.sm` file so that
+all charts are preserved together.
 
 When you go to that page, there'll be a blank textbox. Paste the contents of the SSC file there. For example, try pasting the following text into that textbox:
 
