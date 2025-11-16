@@ -18,7 +18,7 @@ import sys
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional
 
 LOGGER = logging.getLogger(__name__)
 
@@ -215,13 +215,19 @@ def convert_ssc_contents(ssc_contents: str) -> Dict[str, str]:
     if not valid_notes:
         raise ValueError("No complete NOTEDATA blocks were found in the SSC file.")
 
-    by_bpms_stops: Dict[Tuple[Optional[str], Optional[str]], List[SscNoteData]] = {}
-    for nd in valid_notes:
-        by_bpms_stops.setdefault((nd.bpms, nd.stops), []).append(nd)
+    def build_suffix(note: SscNoteData) -> str:
+        pieces = []
+        if note.difficulty:
+            pieces.append(note.difficulty)
+        if note.step_style:
+            pieces.append(note.step_style)
+        if not pieces:
+            return guess_suffix_from_note_data(valid_notes)
+        return " - ".join(pieces)
 
-    sm_models: List[SmModel] = []
-    for group in by_bpms_stops.values():
-        suffix = guess_suffix_from_note_data(group)
+    output: Dict[str, str] = {}
+    for nd in valid_notes:
+        suffix = build_suffix(nd)
         header = SmHeader(
             title=f"{base_title} [{suffix}]",
             artist=model.header.artist,
@@ -231,33 +237,28 @@ def convert_ssc_contents(ssc_contents: str) -> Dict[str, str]:
             music=model.header.music,
             sample_start=model.header.sample_start,
             sample_length=model.header.sample_length,
-            display_bpm=model.header.display_bpm,
-            bpms=group[0].bpms or model.header.bpms,
-            stops=group[0].stops,
+            display_bpm=nd.display_bpm or model.header.display_bpm,
+            bpms=nd.bpms or model.header.bpms,
+            stops=nd.stops,
         )
-        sm_notes = [
-            SmNoteData(
-                step_style=nd.step_style,
-                difficulty=nd.difficulty,
-                meter=nd.meter,
-                notes=nd.notes or "",
-            )
-            for nd in group
-        ]
-        sm_models.append(SmModel(header=header, note_data=sm_notes))
+        sm_note = SmNoteData(
+            step_style=nd.step_style,
+            difficulty=nd.difficulty,
+            meter=nd.meter,
+            notes=nd.notes or "",
+        )
+        sm_model = SmModel(header=header, note_data=[sm_note])
 
-    output: Dict[str, str] = {}
-    for sm in sm_models:
-        name = f"{sm.header.title}.sm"
+        name = f"{sm_model.header.title}.sm"
         safe_name = _sanitize_filename(name)
         if safe_name in output:
             counter = 2
             new_name = safe_name
             while new_name in output:
-                new_name = _sanitize_filename(f"{sm.header.title} ({counter}).sm")
+                new_name = _sanitize_filename(f"{sm_model.header.title} ({counter}).sm")
                 counter += 1
             safe_name = new_name
-        output[safe_name] = sm.to_file_contents()
+        output[safe_name] = sm_model.to_file_contents()
         LOGGER.debug("Prepared SM file %s", safe_name)
 
     return output
@@ -316,6 +317,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Convert StepMania SSC files to SM files.")
     parser.add_argument(
         "path",
+        nargs="?",
         type=Path,
         help="Path to a folder containing SSC files (conversion includes subfolders).",
     )
@@ -329,6 +331,17 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     log_file = setup_logging(args.logs_dir)
     LOGGER.info("Log file: %s", log_file)
+
+    if args.path is None:
+        try:
+            user_input = input("Enter the path to the folder containing SSC files: ").strip()
+        except EOFError:
+            LOGGER.error("No path provided and interactive input is unavailable.")
+            return 1
+        if not user_input:
+            LOGGER.error("No path provided.")
+            return 1
+        args.path = Path(user_input.strip("\"'"))
 
     if not args.path.exists():
         LOGGER.error("Provided path does not exist: %s", args.path)
