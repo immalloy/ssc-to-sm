@@ -2,7 +2,7 @@ Webapp that converts StepMania files in the SSC format to the SM format.
 
 Does not handle any gimmicks like "Lifts", "Fake Arrows", etc.
 
-Chart-specific BPM changes and stops are preserved inside a single consolidated SM that contains every chart.
+Chart-specific BPM changes and stops are preserved inside a single consolidated SM that contains every chart, and metadata like subtitles, translits, and radar values is kept so the SM matches the SSC details.
 
 For example, given `Aces for Aces.ssc`, the converter will generate one `Aces for Aces.sm` file with all difficulties inside. The SM filename always mirrors the SSC filename so your chart folders stay tidy.
 
