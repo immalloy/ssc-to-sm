@@ -11,6 +11,25 @@ For example, given `Aces for Aces.ssc`, will generate `Aces for Aces [Easy].sm`,
 
 There's a running version of the webapp at https://nebupookins.github.io/ssc-to-sm/
 
+## Python command-line usage
+
+You can now run the converter locally from Python without the browser. Place
+`ssc_to_sm.py` anywhere (for example, `C:\\Users\\Malloy\\Downloads\\Tech-Bit Adventures`).
+
+* Double-clicking `ssc_to_sm.py` (or running it without arguments) opens a
+  console that prompts you to paste the folder containing your `.ssc` files. It
+  will include all subfolders automatically.
+* You can also pass the folder path directly:
+
+  ```
+  python ssc_to_sm.py "C:\\Users\\Malloy\\Downloads\\Tech-Bit Adventures"
+  ```
+
+The script scans the given folder and all subfolders for `.ssc` files, writing
+the converted `.sm` files alongside the originals. Detailed progress messages
+are printed to the console and saved to timestamped files inside a `logs`
+directory next to the script.
+
 When you go to that page, there'll be a blank textbox. Paste the contents of the SSC file there. For example, try pasting the following text into that textbox:
 
 ```
